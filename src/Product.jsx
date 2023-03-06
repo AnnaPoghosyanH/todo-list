@@ -4,10 +4,6 @@ import Price from "./Price";
 import Description from "./Description";
 
 class Product extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     return (
       <div>
