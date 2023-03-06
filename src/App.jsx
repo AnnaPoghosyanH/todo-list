@@ -1,11 +1,11 @@
-import logo from './logo.svg';
-import './App.css';
-import Product from './Product';
+import logo from "./logo.svg";
+import "./App.css";
+import Product from "./Product";
 
-function App() {
+function App(){
   return (
     <div className="App">
-      <Product name="Laptop" price="$1.350" description="Very awesome laptop"/>
+      <Product name="Laptop" price="$1.350" description="Very awesome laptop" />
     </div>
   );
 }
