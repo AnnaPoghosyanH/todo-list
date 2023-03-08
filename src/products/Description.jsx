@@ -1,8 +1,8 @@
 import { Component } from "react";
 
 class Description extends Component {
-  render() {
-    return <p>{this.props.productDescription}</p>;
+  render(){
+    return <span>{this.props.text}</span>;
   }
 }
 

@@ -1,8 +1,9 @@
 import { Component } from "react";
 
 class Name extends Component {
-  render() {
-    return <h1>{this.props.productName}</h1>;
+  render(){
+    const { text } = this.props;
+    return <span>{text}</span>;
   }
 }
 
