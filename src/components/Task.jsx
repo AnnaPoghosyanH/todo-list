@@ -1,23 +1,27 @@
 import { Col, Card, Form, Button } from "react-bootstrap";
 import { PencilSquare, Trash } from "react-bootstrap-icons";
 
-function Task(props) {
+function Task({ title, removeTask }) {
   return (
     <Col md={6} className="task">
       <Card className="mt-3 mb-3">
         <Card.Body>
-          <Card.Title>
+          <Card.Title className="d-flex">
             <Form.Group className="task-select-checkbox">
               <Form.Check type="checkbox" />
             </Form.Group>
-            {props.title}
+            {title}
           </Card.Title>
-          <Card.Text>{props.description}</Card.Text>
-          <Button variant="outline-secondary" size="sm" className="ms-1 float-end">
+          <Button
+            variant="outline-secondary"
+            size="sm"
+            className="ms-1 float-end"
+            onClick={removeTask}
+          >
             <Trash />
           </Button>
-          <Button variant="outline-secondary" size="sm" className="float-end"> 
-          <PencilSquare />
+          <Button variant="outline-secondary" size="sm" className="float-end">
+            <PencilSquare />
           </Button>
         </Card.Body>
       </Card>

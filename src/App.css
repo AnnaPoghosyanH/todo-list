@@ -1,34 +1,15 @@
 .App {
   text-align: center;
-  background-color: rgb(195, 237, 243);
+}
 
+body {
+  background-color: rgb(195, 237, 243);
 }
 
 @font-face {
   font-family: myFont;
   src: url(./font/DancingScript-Bold.ttf);
 }
-
-
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-/* .App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-} */
-
-
 
 .task-select-checkbox {
   margin-right: 15px;

@@ -1,7 +1,7 @@
 import { Component } from "react";
-import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import ToDo from "./ToDo";
+import ToDo from "./components/ToDo";
+import "./App.css";
 
 class App extends Component {
   render() {
