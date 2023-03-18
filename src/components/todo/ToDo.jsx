@@ -1,7 +1,9 @@
 import { Component } from "react";
 import { Container, Row, Col, InputGroup, Form, Button } from "react-bootstrap";
-import Task from "./Task";
-import getUniqueId from "../utils/helpers";
+import Task from "../task/Task";
+import getUniqueId from "../../utils/helpers";
+import ConfirmDialog from "../ConfirmDialog";
+import styles from "./todo.module.css";
 
 class ToDo extends Component {
   constructor(props) {
@@ -9,6 +11,7 @@ class ToDo extends Component {
     this.state = {
       tasks: [],
       newTaskTitle: "",
+      selectedTasks: new Set(),
     };
   }
 
@@ -20,7 +23,7 @@ class ToDo extends Component {
   };
 
   handleInputKeyDown = (event) => {
-    if(event.code === "Enter"){
+    if (event.code === "Enter") {
       this.addNewTask();
     }
   };
@@ -44,14 +47,47 @@ class ToDo extends Component {
   };
 
   removeTaskById = (id) => {
-    this.setState((state, props) => ({
-      tasks: state.tasks.filter((task) => task.id !== id),
-    }));
+    const { selectedTasks, tasks } = this.state;
+    const newTasks = tasks.filter((task) => task.id !== id);
+
+    const newState = { tasks: newTasks };
+
+    if(selectedTasks.has(id)){
+      const newSelectedTasks = new Set(selectedTasks);
+      newSelectedTasks.delete(id);
+      newState.selectedTasks = newSelectedTasks;
+    }
+    this.setState(newState);
+  };
+
+  selectTaskById = (id) => {
+    const selectedTasks = new Set(this.state.selectedTasks);
+    if(selectedTasks.has(id)){
+      selectedTasks.delete(id);
+    } 
+    else {
+      selectedTasks.add(id);
+    }
+    this.setState({ selectedTasks });
+  };
+
+  deleteSelectedTasks = () => {
+    const newTasks = [];
+    const { selectedTasks, tasks } = this.state;
+
+    tasks.forEach((task) => {
+      if(!selectedTasks.has(task.id)) {
+        newTasks.push(task)
+      }
+    });
+    this.setState({
+      tasks: newTasks,
+      selectedTasks: new Set(),
+    });
   };
 
   render() {
     const isAddNewTaskButtonDisabled = !this.state.newTaskTitle.trim();
-
     return (
       <div>
         <Container>
@@ -79,17 +115,27 @@ class ToDo extends Component {
         </Container>
 
         <Container>
-          <Row className="justify-content-md-center">
+          <Row className="justify-contentcenter">
             {this.state.tasks.map((task) => {
               return (
                 <Task
                   key={task.id}
                   title={task.title}
                   removeTask={() => this.removeTaskById(task.id)}
+                  selectTask={() => this.selectTaskById(task.id)}
                 />
               );
             })}
           </Row>
+          <Button
+            className={styles.deleteSelectedButton}
+            variant="outline-danger"
+            onClick={this.deleteSelectedTasks}
+            disabled={!this.state.selectedTasks.size}
+          >
+            Delete Selected
+          </Button>
+          <ConfirmDialog />
         </Container>
       </div>
     );

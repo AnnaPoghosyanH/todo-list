@@ -1,5 +1,6 @@
 .App {
-  text-align: center;
+  font-family: myFont;
+
 }
 
 body {
@@ -11,16 +12,11 @@ body {
   src: url(./font/DancingScript-Bold.ttf);
 }
 
-.task-select-checkbox {
-  margin-right: 15px;
-}
 
-.task {
-  text-align: left;
-}
 
 h1 {
   padding: 25px;
-  font-family: myFont;
+  text-align: center;
+  /* font-family: myFont; */
   color: rgb(7, 116, 143);
 }
