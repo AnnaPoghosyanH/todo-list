@@ -4,7 +4,6 @@ import styles from "./task.module.css";
 import { memo } from "react";
 
 function Task({ id, title, selectTask, removeTask }) {
-  console.log(`Task with ${title} is updated`);
   return (
     <Col md={6} className="task">
       <Card className="mt-3 mb-3">
