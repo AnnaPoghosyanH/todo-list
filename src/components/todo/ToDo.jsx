@@ -1,4 +1,4 @@
-import { Component } from "react";
+import { useCallback, Component } from "react";
 import { Container, Row, Col, InputGroup, Form, Button } from "react-bootstrap";
 import Task from "../task/Task";
 import getUniqueId from "../../utils/helpers";
@@ -52,7 +52,7 @@ class ToDo extends Component {
 
     const newState = { tasks: newTasks };
 
-    if(selectedTasks.has(id)){
+    if (selectedTasks.has(id)) {
       const newSelectedTasks = new Set(selectedTasks);
       newSelectedTasks.delete(id);
       newState.selectedTasks = newSelectedTasks;
@@ -62,10 +62,9 @@ class ToDo extends Component {
 
   selectTaskById = (id) => {
     const selectedTasks = new Set(this.state.selectedTasks);
-    if(selectedTasks.has(id)){
+    if (selectedTasks.has(id)) {
       selectedTasks.delete(id);
-    } 
-    else {
+    } else {
       selectedTasks.add(id);
     }
     this.setState({ selectedTasks });
@@ -76,8 +75,8 @@ class ToDo extends Component {
     const { selectedTasks, tasks } = this.state;
 
     tasks.forEach((task) => {
-      if(!selectedTasks.has(task.id)) {
-        newTasks.push(task)
+      if (!selectedTasks.has(task.id)) {
+        newTasks.push(task);
       }
     });
     this.setState({
@@ -120,9 +119,10 @@ class ToDo extends Component {
               return (
                 <Task
                   key={task.id}
+                  id={task.id}
                   title={task.title}
-                  removeTask={() => this.removeTaskById(task.id)}
-                  selectTask={() => this.selectTaskById(task.id)}
+                  removeTask={this.removeTaskById}
+                  selectTask={this.selectTaskById}
                 />
               );
             })}
