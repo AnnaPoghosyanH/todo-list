@@ -1,15 +1,19 @@
 import { Modal, Button } from "react-bootstrap";
 
-function ConfirmDialog(){
-  return(
-    <Modal size="sm" show={false} onHide={() => {}}>
+function ConfirmDialog(props) {
+  return (
+    <Modal show={true} onHide={props.onCansel}>
       <Modal.Header closeButton>
-        <Modal.Title>Are you sure to delete the selected tasks?</Modal.Title>
+        <Modal.Title>{props.tasksCount} {props.tasksCount > 1 ?  "selected tasks" : "selected task" } will be deleted permanently. Delete anyw?</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <div className="d-flex justify-content-evenly">
-          <Button variant="danger">Delete</Button>
-          <Button variant="success">Cancel</Button>
+          <Button variant="danger" onClick={props.onSubmit}>
+            Delete
+          </Button>
+          <Button variant="success" onClick={props.onCansel}>
+            Cancel
+          </Button>
         </div>
       </Modal.Body>
     </Modal>
