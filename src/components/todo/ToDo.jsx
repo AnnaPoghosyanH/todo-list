@@ -12,6 +12,7 @@ class ToDo extends Component {
       tasks: [],
       newTaskTitle: "",
       selectedTasks: new Set(),
+      isConfirmDialogShow: false,
     };
   }
 
@@ -52,7 +53,7 @@ class ToDo extends Component {
 
     const newState = { tasks: newTasks };
 
-    if(selectedTasks.has(id)){
+    if (selectedTasks.has(id)) {
       const newSelectedTasks = new Set(selectedTasks);
       newSelectedTasks.delete(id);
       newState.selectedTasks = newSelectedTasks;
@@ -62,10 +63,9 @@ class ToDo extends Component {
 
   selectTaskById = (id) => {
     const selectedTasks = new Set(this.state.selectedTasks);
-    if(selectedTasks.has(id)){
+    if (selectedTasks.has(id)) {
       selectedTasks.delete(id);
-    } 
-    else {
+    } else {
       selectedTasks.add(id);
     }
     this.setState({ selectedTasks });
@@ -76,18 +76,28 @@ class ToDo extends Component {
     const { selectedTasks, tasks } = this.state;
 
     tasks.forEach((task) => {
-      if(!selectedTasks.has(task.id)) {
-        newTasks.push(task)
+      if (!selectedTasks.has(task.id)) {
+        newTasks.push(task);
       }
     });
     this.setState({
       tasks: newTasks,
       selectedTasks: new Set(),
+      isConfirmDialogShow: false,
     });
   };
 
+  showConfirmDialog = () => {
+    this.setState({ isConfirmDialogShow: true });
+  };
+
+  closeConfirmDialog = () => {
+    this.setState({ isConfirmDialogShow: false });
+  };
+
   render() {
-    const isAddNewTaskButtonDisabled = !this.state.newTaskTitle.trim();
+    const { newTaskTitle, isConfirmDialogShow, selectedTasks } = this.state;
+    const isAddNewTaskButtonDisabled = !newTaskTitle.trim();
     return (
       <div>
         <Container>
@@ -99,7 +109,7 @@ class ToDo extends Component {
                   placeholder="Input Task"
                   onChange={this.handleInputChange}
                   onKeyDown={this.handleInputKeyDown}
-                  value={this.state.newTaskTitle}
+                  value={newTaskTitle}
                 />
                 <Button
                   variant="primary"
@@ -120,9 +130,10 @@ class ToDo extends Component {
               return (
                 <Task
                   key={task.id}
+                  id={task.id}
                   title={task.title}
-                  removeTask={() => this.removeTaskById(task.id)}
-                  selectTask={() => this.selectTaskById(task.id)}
+                  removeTask={this.removeTaskById}
+                  selectTask={this.selectTaskById}
                 />
               );
             })}
@@ -130,12 +141,18 @@ class ToDo extends Component {
           <Button
             className={styles.deleteSelectedButton}
             variant="outline-danger"
-            onClick={this.deleteSelectedTasks}
-            disabled={!this.state.selectedTasks.size}
+            onClick={this.showConfirmDialog}
+            disabled={!selectedTasks.size}
           >
             Delete Selected
           </Button>
-          <ConfirmDialog />
+          {isConfirmDialogShow && (
+            <ConfirmDialog
+              tasksCount={selectedTasks.size}
+              onCansel={this.closeConfirmDialog}
+              onSubmit={this.deleteSelectedTasks}
+            />
+          )}
         </Container>
       </div>
     );
