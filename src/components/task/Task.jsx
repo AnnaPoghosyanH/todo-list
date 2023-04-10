@@ -1,6 +1,7 @@
+import { memo } from "react";
+import PropTypes from "prop-types";
 import { Col, Card, Form, Button } from "react-bootstrap";
 import { PencilSquare, Trash } from "react-bootstrap-icons";
-import { memo } from "react";
 import styles from "./task.module.css";
 
 function Task({ id, title, removeTask, selectTask }) {
@@ -30,6 +31,14 @@ function Task({ id, title, removeTask, selectTask }) {
       </Card>
     </Col>
   );
+}
+
+
+Task.propTypes = {
+  id: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
+  removeTask: PropTypes.func.isRequired,
+  selectTask: PropTypes.func.isRequired,
 }
 
 export default memo(Task);
