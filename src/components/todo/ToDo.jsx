@@ -1,17 +1,21 @@
 import { useState, useEffect } from "react";
-import { Container, Row, Col, InputGroup, Form, Button } from "react-bootstrap";
+import { Container, Row, Col, Button } from "react-bootstrap";
+import { ToastContainer, toast } from "react-toastify";
 import Task from "../task/Task";
 import ConfirmDialog from "../ConfirmDialog";
+import TaskModal from "../taskModal/TaskModal";
 import DeleteSelected from "../deletSelected/DeleteSelected";
 import TaskApi from "../../api/taskApi";
 import styles from "./todo.module.css";
 
 const taskApi = new TaskApi();
-function ToDo() {
+
+function ToDo(){
   const [tasks, setTasks] = useState([]);
-  const [newTaskTitle, setNewTaskTitle] = useState("");
   const [selectedTasks, setSelectedTasks] = useState(new Set());
   const [taskToDelete, setTaskToDelete] = useState(null);
+  const [editableTask, setEditableTask] = useState(null);
+  const [isAddTaskModalShow, setIsAddTaskShow] = useState(false);
 
   useEffect(() => {
     taskApi.getAll().then((tasks) => {
@@ -19,42 +23,37 @@ function ToDo() {
     });
   }, []);
 
-  const handleInputChange = (event) => {
-    setNewTaskTitle(event.target.value);
-  };
-
-  const handleInputKeyDown = (event) => {
-    if (event.code === "Enter") {
-      addNewTask();
-    }
-  };
-
-  const addNewTask = () => {
-    const trimmedTitle = newTaskTitle.trim();
-    if (!trimmedTitle) {
-      return;
-    }
-
-    const newTask = {
-      title: trimmedTitle,
-    };
-
-    taskApi.add(newTask).then((task) => {
-      const tasksCopy = [...tasks];
-      tasksCopy.push(task);
-      setTasks(tasksCopy);
-      setNewTaskTitle("");
-    });
+  const onAddNewTask = (newTask) => {
+    taskApi
+      .add(newTask)
+      .then((task) => {
+        const tasksCopy = [...tasks];
+        tasksCopy.push(task);
+        setTasks(tasksCopy);
+        setIsAddTaskShow(false);
+        toast.success(`A new task has been added seccessfully!`);
+      })
+      .catch((err) => {
+        toast.error(err.message);
+      });
   };
 
   const removeTaskById = (id) => {
-    const newTasks = tasks.filter((task) => task._id !== id);
-    setTasks(newTasks);
-    if (selectedTasks.has(id)) {
-      const newSelectedTasks = new Set(selectedTasks);
-      newSelectedTasks.delete(id);
-      setSelectedTasks(newSelectedTasks);
-    }
+    taskApi
+      .delete(id)
+      .then(() => {
+        const newTasks = tasks.filter((task) => task._id !== id);
+        setTasks(newTasks);
+        if (selectedTasks.has(id)) {
+          const newSelectedTasks = new Set(selectedTasks);
+          newSelectedTasks.delete(id);
+          setSelectedTasks(newSelectedTasks);
+        }
+        toast.success("This task has been deleted successfully!");
+      })
+      .catch((err) => {
+        toast.error(err.message);
+      });
   };
 
   const selectTaskById = (id) => {
@@ -68,39 +67,78 @@ function ToDo() {
   };
 
   const deleteSelectedTasks = () => {
-    const newTasks = [];
-    tasks.forEach((task) => {
-      if (!selectedTasks.has(task._id)) {
-        newTasks.push(task);
-      }
-    });
-    setTasks(newTasks);
+    taskApi
+      .deleteMany([...selectedTasks])
+      .then(() => {
+        const newTasks = [];
+        const deletedTasksCount = selectedTasks.size;
+        tasks.forEach((task) => {
+          if (!selectedTasks.has(task._id)) {
+            newTasks.push(task);
+          }
+        });
+        setTasks(newTasks);
+        setSelectedTasks(new Set());
+        toast.success(
+          deletedTasksCount > 1
+            ? `${deletedTasksCount} tasks have been deleted successfully!`
+            : `${deletedTasksCount} task has been deleted successfully!`
+        );
+      })
+      .catch((err) => {
+        toast.error(err.message);
+      });
+  };
+
+  const selectAllTasks = () => {
+    const taskIds = tasks.map((task) => task._id);
+    setSelectedTasks(new Set(taskIds));
+  };
+
+  const resetSelectedTasks = () => {
     setSelectedTasks(new Set());
   };
 
-  const isAddNewTaskButtonDisabled = !newTaskTitle.trim();
+  const onEditTask = (editedTask) => {
+    taskApi
+      .update(editedTask)
+      .then((updatedTask) => {
+        const updatedTasksCopy = [...tasks];
+        const updatedTasksToSave = updatedTasksCopy.map((task) =>
+          task._id === updatedTask._id ? updatedTask : task
+        );
+        setTasks(updatedTasksToSave);
+        toast.success("This task have been updated successfully!");
+        setEditableTask(null);
+      })
+      .catch((err) => {
+        toast.error(err.message);
+      });
+  };
+
   return (
     <div>
+      <h1 className={styles.h1}>My To Do List</h1>
       <Container>
         <Row className="justify-content-md-center">
           <Col md={6}>
-            <h1 className={styles.h1}>My To Do List</h1>
-            <InputGroup className="mb-3 mt-4">
-              <Form.Control
-                placeholder="Input Task"
-                onChange={handleInputChange}
-                onKeyDown={handleInputKeyDown}
-                value={newTaskTitle}
-              />
-              <Button
-                variant="primary"
-                id="button-addon1"
-                onClick={addNewTask}
-                disabled={isAddNewTaskButtonDisabled}
-              >
-                Add
-              </Button>
-            </InputGroup>
+            <Button
+              variant="primary"
+              id="button-addon1"
+              onClick={() => setIsAddTaskShow(true)}
+            >
+              Add new Task
+            </Button>
+          </Col>
+          <Col>
+            <Button variant="warning" onClick={selectAllTasks}>
+              Select all
+            </Button>
+          </Col>
+          <Col md={4}>
+            <Button variant="secondary" onClick={resetSelectedTasks}>
+              Reset selected
+            </Button>
           </Col>
         </Row>
       </Container>
@@ -111,10 +149,11 @@ function ToDo() {
             return (
               <Task
                 key={task._id}
-                id={task._id}
-                title={task.title}
+                dataTask={task}
                 removeTask={setTaskToDelete}
                 selectTask={selectTaskById}
+                editTask={setEditableTask}
+                checked={selectedTasks.has(task._id)}
               />
             );
           })}
@@ -136,6 +175,32 @@ function ToDo() {
             }}
           />
         )}
+        {isAddTaskModalShow && (
+          <TaskModal
+            onCancel={() => setIsAddTaskShow(false)}
+            onSave={onAddNewTask}
+          />
+        )}
+
+        {editableTask && (
+          <TaskModal
+            onCancel={() => setEditableTask(null)}
+            onSave={onEditTask}
+            data={editableTask}
+          />
+        )}
+        <ToastContainer
+          position="bottom-left"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick={false}
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="colored"
+        />
       </Container>
     </div>
   );

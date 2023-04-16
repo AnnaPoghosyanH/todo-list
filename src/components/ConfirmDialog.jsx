@@ -6,7 +6,8 @@ function ConfirmDialog({ tasksCount, onCancel, onSubmit }) {
     <Modal show={true} onHide={onCancel}>
       <Modal.Header closeButton>
         <Modal.Title>
-          Do you really want to delete {tasksCount !== 0 ? tasksCount : null} {tasksCount >1 ? 'tasks': 'task'}?
+          Do you really want to delete {tasksCount !== 0 ? tasksCount : null}{" "}
+          {tasksCount > 1 ? "tasks" : "task"}?
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>

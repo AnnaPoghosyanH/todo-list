@@ -2,3 +2,46 @@
     margin:0 0 15px;
     cursor: pointer;
   }
+
+
+  .taskStatus{
+    border: 1px solid  rgb(7, 116, 143);
+    border-radius: 50px;
+    margin-top: 20px;
+    color: rgb(7, 116, 143);
+    width: 140px;
+    text-align: center;
+  }
+  
+  .taskCreatedAt{
+    border: 1px solid  rgba(54, 158, 6, 0.904);
+    border-radius: 50px;
+    margin-top: 20px;
+    color:  rgba(54, 158, 6, 0.904);
+    width: 200px;
+    text-align: center;
+  }
+
+  .taskDedline{
+    border: 1px solid   rgb(247, 35, 35);
+    border-radius: 50px;
+    margin-top: 7px;
+    color:  rgb(247, 35, 35);
+    width: 200px;
+    text-align: center;
+  }
+
+  .taskTitle{
+    font-size: 27px;;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  
+
+  .taskEllipsis{
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  
