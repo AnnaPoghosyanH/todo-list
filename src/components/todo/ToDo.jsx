@@ -1,162 +1,209 @@
-import { Component } from "react";
-import { Container, Row, Col, InputGroup, Form, Button } from "react-bootstrap";
+import { useState, useEffect } from "react";
+import { Container, Row, Col, Button } from "react-bootstrap";
+import { ToastContainer, toast } from "react-toastify";
 import Task from "../task/Task";
-import getUniqueId from "../../utils/helpers";
 import ConfirmDialog from "../ConfirmDialog";
+import TaskModal from "../taskModal/TaskModal";
+import DeleteSelected from "../deletSelected/DeleteSelected";
+import TaskApi from "../../api/taskApi";
 import styles from "./todo.module.css";
 
-class ToDo extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      tasks: [],
-      newTaskTitle: "",
-      selectedTasks: new Set(),
-      isConfirmDialogShow: false,
-    };
-  }
+const taskApi = new TaskApi();
 
-  handleInputChange = (event) => {
-    const newTaskTitle = event.target.value;
-    this.setState({
-      newTaskTitle,
+function ToDo(){
+  const [tasks, setTasks] = useState([]);
+  const [selectedTasks, setSelectedTasks] = useState(new Set());
+  const [taskToDelete, setTaskToDelete] = useState(null);
+  const [editableTask, setEditableTask] = useState(null);
+  const [isAddTaskModalShow, setIsAddTaskShow] = useState(false);
+
+  useEffect(() => {
+    taskApi.getAll().then((tasks) => {
+      setTasks(tasks);
     });
+  }, []);
+
+  const onAddNewTask = (newTask) => {
+    taskApi
+      .add(newTask)
+      .then((task) => {
+        const tasksCopy = [...tasks];
+        tasksCopy.push(task);
+        setTasks(tasksCopy);
+        setIsAddTaskShow(false);
+        toast.success(`A new task has been added seccessfully!`);
+      })
+      .catch((err) => {
+        toast.error(err.message);
+      });
   };
 
-  handleInputKeyDown = (event) => {
-    if (event.code === "Enter") {
-      this.addNewTask();
-    }
+  const removeTaskById = (id) => {
+    taskApi
+      .delete(id)
+      .then(() => {
+        const newTasks = tasks.filter((task) => task._id !== id);
+        setTasks(newTasks);
+        if (selectedTasks.has(id)) {
+          const newSelectedTasks = new Set(selectedTasks);
+          newSelectedTasks.delete(id);
+          setSelectedTasks(newSelectedTasks);
+        }
+        toast.success("This task has been deleted successfully!");
+      })
+      .catch((err) => {
+        toast.error(err.message);
+      });
   };
 
-  addNewTask = () => {
-    const trimmedTitle = this.state.newTaskTitle.trim();
-    if (!trimmedTitle) {
-      return;
-    }
-
-    const newTask = {
-      id: getUniqueId(),
-      title: trimmedTitle,
-    };
-    const tasks = [...this.state.tasks];
-    tasks.push(newTask);
-    this.setState({
-      tasks,
-      newTaskTitle: "",
-    });
-  };
-
-  removeTaskById = (id) => {
-    const { selectedTasks, tasks } = this.state;
-    const newTasks = tasks.filter((task) => task.id !== id);
-
-    const newState = { tasks: newTasks };
-
-    if (selectedTasks.has(id)) {
-      const newSelectedTasks = new Set(selectedTasks);
-      newSelectedTasks.delete(id);
-      newState.selectedTasks = newSelectedTasks;
-    }
-    this.setState(newState);
-  };
-
-  selectTaskById = (id) => {
-    const selectedTasks = new Set(this.state.selectedTasks);
-    if (selectedTasks.has(id)) {
-      selectedTasks.delete(id);
+  const selectTaskById = (id) => {
+    const selectedTasksCopy = new Set(selectedTasks);
+    if (selectedTasksCopy.has(id)) {
+      selectedTasksCopy.delete(id);
     } else {
-      selectedTasks.add(id);
+      selectedTasksCopy.add(id);
     }
-    this.setState({ selectedTasks });
+    setSelectedTasks(selectedTasksCopy);
   };
 
-  deleteSelectedTasks = () => {
-    const newTasks = [];
-    const { selectedTasks, tasks } = this.state;
-
-    tasks.forEach((task) => {
-      if (!selectedTasks.has(task.id)) {
-        newTasks.push(task);
-      }
-    });
-    this.setState({
-      tasks: newTasks,
-      selectedTasks: new Set(),
-      isConfirmDialogShow: false,
-    });
+  const deleteSelectedTasks = () => {
+    taskApi
+      .deleteMany([...selectedTasks])
+      .then(() => {
+        const newTasks = [];
+        const deletedTasksCount = selectedTasks.size;
+        tasks.forEach((task) => {
+          if (!selectedTasks.has(task._id)) {
+            newTasks.push(task);
+          }
+        });
+        setTasks(newTasks);
+        setSelectedTasks(new Set());
+        toast.success(
+          deletedTasksCount > 1
+            ? `${deletedTasksCount} tasks have been deleted successfully!`
+            : `${deletedTasksCount} task has been deleted successfully!`
+        );
+      })
+      .catch((err) => {
+        toast.error(err.message);
+      });
   };
 
-  showConfirmDialog = () => {
-    this.setState({ isConfirmDialogShow: true });
+  const selectAllTasks = () => {
+    const taskIds = tasks.map((task) => task._id);
+    setSelectedTasks(new Set(taskIds));
   };
 
-  closeConfirmDialog = () => {
-    this.setState({ isConfirmDialogShow: false });
+  const resetSelectedTasks = () => {
+    setSelectedTasks(new Set());
   };
 
-  render() {
-    const { newTaskTitle, isConfirmDialogShow, selectedTasks } = this.state;
-    const isAddNewTaskButtonDisabled = !newTaskTitle.trim();
-    return (
-      <div>
-        <Container>
-          <Row className="justify-content-md-center">
-            <Col md={6}>
-              <h1>My To Do List</h1>
-              <InputGroup className="mb-3 mt-4">
-                <Form.Control
-                  placeholder="Input Task"
-                  onChange={this.handleInputChange}
-                  onKeyDown={this.handleInputKeyDown}
-                  value={newTaskTitle}
-                />
-                <Button
-                  variant="primary"
-                  id="button-addon1"
-                  onClick={this.addNewTask}
-                  disabled={isAddNewTaskButtonDisabled}
-                >
-                  Add
-                </Button>
-              </InputGroup>
-            </Col>
-          </Row>
-        </Container>
+  const onEditTask = (editedTask) => {
+    taskApi
+      .update(editedTask)
+      .then((updatedTask) => {
+        const updatedTasksCopy = [...tasks];
+        const updatedTasksToSave = updatedTasksCopy.map((task) =>
+          task._id === updatedTask._id ? updatedTask : task
+        );
+        setTasks(updatedTasksToSave);
+        toast.success("This task have been updated successfully!");
+        setEditableTask(null);
+      })
+      .catch((err) => {
+        toast.error(err.message);
+      });
+  };
 
-        <Container>
-          <Row className="justify-contentcenter">
-            {this.state.tasks.map((task) => {
-              return (
-                <Task
-                  key={task.id}
-                  id={task.id}
-                  title={task.title}
-                  removeTask={this.removeTaskById}
-                  selectTask={this.selectTaskById}
-                />
-              );
-            })}
-          </Row>
-          <Button
-            className={styles.deleteSelectedButton}
-            variant="outline-danger"
-            onClick={this.showConfirmDialog}
-            disabled={!selectedTasks.size}
-          >
-            Delete Selected
-          </Button>
-          {isConfirmDialogShow && (
-            <ConfirmDialog
-              tasksCount={selectedTasks.size}
-              onCansel={this.closeConfirmDialog}
-              onSubmit={this.deleteSelectedTasks}
-            />
-          )}
-        </Container>
-      </div>
-    );
-  }
+  return (
+    <div>
+      <h1 className={styles.h1}>My To Do List</h1>
+      <Container>
+        <Row className="justify-content-md-center">
+          <Col md={6}>
+            <Button
+              variant="primary"
+              id="button-addon1"
+              onClick={() => setIsAddTaskShow(true)}
+            >
+              Add new Task
+            </Button>
+          </Col>
+          <Col>
+            <Button variant="warning" onClick={selectAllTasks}>
+              Select all
+            </Button>
+          </Col>
+          <Col md={4}>
+            <Button variant="secondary" onClick={resetSelectedTasks}>
+              Reset selected
+            </Button>
+          </Col>
+        </Row>
+      </Container>
+
+      <Container>
+        <Row className="justify-contentcenter">
+          {tasks.map((task) => {
+            return (
+              <Task
+                key={task._id}
+                dataTask={task}
+                removeTask={setTaskToDelete}
+                selectTask={selectTaskById}
+                editTask={setEditableTask}
+                checked={selectedTasks.has(task._id)}
+              />
+            );
+          })}
+        </Row>
+
+        <DeleteSelected
+          disabled={!selectedTasks.size}
+          tasksCount={selectedTasks.size}
+          onSubmit={deleteSelectedTasks}
+        />
+
+        {taskToDelete && (
+          <ConfirmDialog
+            tasksCount={1}
+            onCancel={() => setTaskToDelete(null)}
+            onSubmit={() => {
+              removeTaskById(taskToDelete);
+              setTaskToDelete(null);
+            }}
+          />
+        )}
+        {isAddTaskModalShow && (
+          <TaskModal
+            onCancel={() => setIsAddTaskShow(false)}
+            onSave={onAddNewTask}
+          />
+        )}
+
+        {editableTask && (
+          <TaskModal
+            onCancel={() => setEditableTask(null)}
+            onSave={onEditTask}
+            data={editableTask}
+          />
+        )}
+        <ToastContainer
+          position="bottom-left"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick={false}
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="colored"
+        />
+      </Container>
+    </div>
+  );
 }
 
 export default ToDo;
