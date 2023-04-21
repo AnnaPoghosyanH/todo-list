@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, memo } from "react";
 import PropTypes from "prop-types";
 import { Button } from "react-bootstrap";
 import ConfirmDialog from "../ConfirmDialog";
@@ -41,4 +41,4 @@ DeleteSelected.propTypes = {
   onSubmit: PropTypes.func.isRequired,
 };
 
-export default DeleteSelected;
+export default memo(DeleteSelected);
