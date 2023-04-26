@@ -1,26 +1,36 @@
 import { useState, useEffect } from "react";
-import { Container, Row, Col, Button } from "react-bootstrap";
+import { Container, Row, Col, Button, Navbar } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import Task from "../task/Task";
 import ConfirmDialog from "../ConfirmDialog";
 import TaskModal from "../taskModal/TaskModal";
 import DeleteSelected from "../deletSelected/DeleteSelected";
+import Filters from "../filters/Filters";
 import TaskApi from "../../api/taskApi";
 import styles from "./todo.module.css";
 
 const taskApi = new TaskApi();
 
-function ToDo(){
+function ToDo() {
   const [tasks, setTasks] = useState([]);
   const [selectedTasks, setSelectedTasks] = useState(new Set());
   const [taskToDelete, setTaskToDelete] = useState(null);
   const [editableTask, setEditableTask] = useState(null);
   const [isAddTaskModalShow, setIsAddTaskShow] = useState(false);
 
+  const getTasks = (filters) => {
+    taskApi
+      .getAll(filters)
+      .then((tasks) => {
+        setTasks(tasks);
+      })
+      .catch((err) => {
+        toast.error(err.message);
+      });
+  };
+
   useEffect(() => {
-    taskApi.getAll().then((tasks) => {
-      setTasks(tasks);
-    });
+    getTasks();
   }, []);
 
   const onAddNewTask = (newTask) => {
@@ -116,35 +126,46 @@ function ToDo(){
       });
   };
 
+  const onFilter = (filters) => {
+    getTasks(filters);
+  };
+
   return (
     <div>
-      <h1 className={styles.h1}>My To Do List</h1>
       <Container>
-        <Row className="justify-content-md-center">
-          <Col md={6}>
+        <Row>
+          <Col>
+            <h1 className={styles.h1}>My To Do List</h1>
+          </Col>
+        </Row>
+        <Row className="justify-content-md-center mb-3 ">
+          <Col sm="4" lg="3">
             <Button
               variant="primary"
               id="button-addon1"
               onClick={() => setIsAddTaskShow(true)}
             >
-              Add new Task
+              Add new task
             </Button>
           </Col>
-          <Col>
+          <Col sm="4" lg="3">
             <Button variant="warning" onClick={selectAllTasks}>
               Select all
             </Button>
           </Col>
-          <Col md={4}>
+          <Col sm="4" lg="3">
             <Button variant="secondary" onClick={resetSelectedTasks}>
               Reset selected
             </Button>
           </Col>
         </Row>
-      </Container>
+        <Row>
+          <Col md={12}>
+            <Filters onFilter={onFilter} />
+          </Col>
+        </Row>
 
-      <Container>
-        <Row className="justify-contentcenter">
+        <Row className="justify-content-center">
           {tasks.map((task) => {
             return (
               <Task
@@ -154,16 +175,24 @@ function ToDo(){
                 selectTask={selectTaskById}
                 editTask={setEditableTask}
                 checked={selectedTasks.has(task._id)}
+                onStatusChange={onEditTask}
               />
             );
           })}
         </Row>
-
-        <DeleteSelected
-          disabled={!selectedTasks.size}
-          tasksCount={selectedTasks.size}
-          onSubmit={deleteSelectedTasks}
-        />
+        <Navbar
+          collapseOnSelect
+          expand="sm"
+          variant="light"
+          bg="light"
+          fixed="bottom"
+        >
+          <DeleteSelected
+            disabled={!selectedTasks.size}
+            tasksCount={selectedTasks.size}
+            onSubmit={deleteSelectedTasks}
+          />
+        </Navbar>
 
         {taskToDelete && (
           <ConfirmDialog
