@@ -16,7 +16,7 @@ function ToDo() {
   const [selectedTasks, setSelectedTasks] = useState(new Set());
   const [taskToDelete, setTaskToDelete] = useState(null);
   const [editableTask, setEditableTask] = useState(null);
-  const [isAddTaskModalShow, setIsAddTaskShow] = useState(false);
+  const [isAddTaskModalShow, setIsAddTaskModalShow] = useState(false);
 
   const getTasks = (filters) => {
     taskApi
@@ -40,7 +40,7 @@ function ToDo() {
         const tasksCopy = [...tasks];
         tasksCopy.push(task);
         setTasks(tasksCopy);
-        setIsAddTaskShow(false);
+        setIsAddTaskModalShow(false);
         toast.success(`A new task has been added seccessfully!`);
       })
       .catch((err) => {
@@ -141,20 +141,29 @@ function ToDo() {
         <Row className="justify-content-md-center mb-3 ">
           <Col sm="4" lg="3">
             <Button
+              className="rounded-pill"
               variant="primary"
               id="button-addon1"
-              onClick={() => setIsAddTaskShow(true)}
+              onClick={() => setIsAddTaskModalShow(true)}
             >
               Add new task
             </Button>
           </Col>
           <Col sm="4" lg="3">
-            <Button variant="warning" onClick={selectAllTasks}>
+            <Button
+              className="rounded-pill"
+              variant="warning"
+              onClick={selectAllTasks}
+            >
               Select all
             </Button>
           </Col>
           <Col sm="4" lg="3">
-            <Button variant="secondary" onClick={resetSelectedTasks}>
+            <Button
+              className="rounded-pill"
+              variant="secondary"
+              onClick={resetSelectedTasks}
+            >
               Reset selected
             </Button>
           </Col>
@@ -206,7 +215,7 @@ function ToDo() {
         )}
         {isAddTaskModalShow && (
           <TaskModal
-            onCancel={() => setIsAddTaskShow(false)}
+            onCancel={() => setIsAddTaskModalShow(false)}
             onSave={onAddNewTask}
           />
         )}
