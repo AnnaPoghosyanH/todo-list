@@ -11,15 +11,13 @@ function TaskModal(props) {
   const [date, setDate] = useState(new Date());
   const [isTitleValid, setIsTitleValid] = useState(false);
 
-  
-  useEffect(() =>{
+  useEffect(() => {
     const { data } = props;
     if (data) {
       setTitle(data.title);
       setDescription(data.description);
       setDate(data.date ? new Date(data.date) : new Date());
       setIsTitleValid(true);
-
     }
   }, [props]);
 

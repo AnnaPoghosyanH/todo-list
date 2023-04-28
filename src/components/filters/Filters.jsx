@@ -95,7 +95,7 @@ function Filters(props) {
             <Form.Control
               type="search"
               placeholder="Search"
-              className="me-2"
+              className="me-2 rounded-pill"
               aria-label="Search"
               value={search}
               onChange={onSearchChange}
@@ -122,7 +122,11 @@ function Filters(props) {
               {dateOptions.map((dateOption) => {
                 const dateValue = dateFilters[dateOption.value];
                 return (
-                  <Col sm={12} md={6} lg={6} xl={3}
+                  <Col
+                    sm={12}
+                    md={6}
+                    lg={6}
+                    xl={3}
                     className="text-center"
                     key={dateOption.label}
                   >

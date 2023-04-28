@@ -14,7 +14,7 @@ function Task(props) {
   const task = props.dataTask;
 
   return (
-    <Col sm={12} className="task">
+    <Col sm={12} xl={6} className="task">
       <Card className="mt-2 mb-2">
         <Card.Body>
           <div className={styles.taskStatusCheckbox}>
@@ -56,7 +56,7 @@ function Task(props) {
             title="Edit"
             variant="outline-primary"
             size="sm"
-            className="float-end"
+            className="float-end "
             onClick={() => props.editTask(task)}
           >
             <PencilSquare />
@@ -79,7 +79,7 @@ function Task(props) {
               title="Mark as active"
               variant="outline-info"
               size="sm"
-              className="me-1 float-end"
+              className="me-1 float-end "
               onClick={() =>
                 props.onStatusChange({ status: "active", _id: task._id })
               }
