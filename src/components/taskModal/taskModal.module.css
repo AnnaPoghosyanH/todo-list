@@ -1,3 +1,4 @@
-.invalid, .invalid:focus {
-    outline: 1px solid red;
+.invalid,
+.invalid:focus {
+  outline: 1px solid red;
 }

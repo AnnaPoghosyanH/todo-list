@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import { Container, Row, Col, Button, Navbar } from "react-bootstrap";
-import { ToastContainer, toast } from "react-toastify";
-import Task from "../task/Task";
-import ConfirmDialog from "../ConfirmDialog";
-import TaskModal from "../taskModal/TaskModal";
-import DeleteSelected from "../deletSelected/DeleteSelected";
-import Filters from "../filters/Filters";
+import { Container, Row, Col, Button } from "react-bootstrap";
+import { toast } from "react-toastify";
+import Task from "../../components/task/Task";
+import ConfirmDialog from "../../components/ConfirmDialog";
+import TaskModal from "../../components/taskModal/TaskModal";
+import DeleteSelected from "../../components/deletSelected/DeleteSelected";
+import Filters from "../../components/filters/Filters";
 import TaskApi from "../../api/taskApi";
 import styles from "./todo.module.css";
 
@@ -118,7 +118,7 @@ function ToDo() {
           task._id === updatedTask._id ? updatedTask : task
         );
         setTasks(updatedTasksToSave);
-        toast.success("This task have been updated successfully!");
+        toast.success("This task has been updated successfully!");
         setEditableTask(null);
       })
       .catch((err) => {
@@ -189,20 +189,11 @@ function ToDo() {
             );
           })}
         </Row>
-        <Navbar
-          collapseOnSelect
-          expand="sm"
-          variant="light"
-          bg="light"
-          fixed="bottom"
-        >
-          <DeleteSelected
-            disabled={!selectedTasks.size}
-            tasksCount={selectedTasks.size}
-            onSubmit={deleteSelectedTasks}
-          />
-        </Navbar>
-
+        <DeleteSelected
+          disabled={!selectedTasks.size}
+          tasksCount={selectedTasks.size}
+          onSubmit={deleteSelectedTasks}
+        />
         {taskToDelete && (
           <ConfirmDialog
             tasksCount={1}
@@ -227,18 +218,6 @@ function ToDo() {
             data={editableTask}
           />
         )}
-        <ToastContainer
-          position="bottom-left"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick={false}
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="colored"
-        />
       </Container>
     </div>
   );

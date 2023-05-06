@@ -1,3 +1,5 @@
 .deleteSelectedButton { 
-  margin-left: 7px;
+  position: fixed;
+  top: 307px;
+  right: 75px;
 }

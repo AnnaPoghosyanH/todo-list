@@ -41,6 +41,9 @@ class TaskApi {
   getAll(filters) {
     return this.#request("GET", { filters: filters });
   }
+  getSingle(id) {
+    return this.#request("GET", { params: id });
+  }
   add(task) {
     return this.#request("POST", { body: task });
   }
