@@ -1,12 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import { toast } from "react-toastify";
+import { useSelector, useDispatch } from "react-redux";
 import Task from "../../components/task/Task";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import TaskModal from "../../components/taskModal/TaskModal";
 import DeleteSelected from "../../components/deletSelected/DeleteSelected";
 import Filters from "../../components/filters/Filters";
 import TaskApi from "../../api/taskApi";
+import { setTasksCount } from "../../redux/reducers/tasksSlice";
+import { setLoader } from "../../redux/reducers/loaderSlice";
 import styles from "./todo.module.css";
 
 const taskApi = new TaskApi();
@@ -18,7 +21,11 @@ function ToDo() {
   const [editableTask, setEditableTask] = useState(null);
   const [isAddTaskModalShow, setIsAddTaskModalShow] = useState(false);
 
+  const tasksCount = useSelector((store) => store.tasksCount.count);
+  const dispatch = useDispatch();
+
   const getTasks = (filters) => {
+    dispatch(setLoader(true));
     taskApi
       .getAll(filters)
       .then((tasks) => {
@@ -26,12 +33,19 @@ function ToDo() {
       })
       .catch((err) => {
         toast.error(err.message);
+      })
+      .finally(() => {
+        dispatch(setLoader(false));
       });
   };
 
   useEffect(() => {
     getTasks();
   }, []);
+
+  useEffect(() => {
+    dispatch(setTasksCount(tasks.length));
+  }, [tasks.length]);
 
   const onAddNewTask = (newTask) => {
     taskApi
@@ -138,8 +152,12 @@ function ToDo() {
             <h1 className={styles.h1}>My To Do List</h1>
           </Col>
         </Row>
-        <Row className="justify-content-md-center mb-3 ">
-          <Col sm="4" lg="3">
+        <Row className="justify-content-md-center mb-3 "></Row>
+        <Row>
+          <Col sm="6" lg="3" className={styles.buttonCol}>
+            <h3 className={styles.h3}>Number of tasks: {tasksCount}</h3>
+          </Col>
+          <Col sm="6" lg="3" className={styles.buttonCol}>
             <Button
               className="rounded-pill"
               variant="primary"
@@ -149,7 +167,7 @@ function ToDo() {
               Add new task
             </Button>
           </Col>
-          <Col sm="4" lg="3">
+          <Col sm="6" lg="3" className={styles.buttonCol}>
             <Button
               className="rounded-pill"
               variant="warning"
@@ -158,7 +176,7 @@ function ToDo() {
               Select all
             </Button>
           </Col>
-          <Col sm="4" lg="3">
+          <Col sm="6" lg="3" className={styles.buttonCol}>
             <Button
               className="rounded-pill"
               variant="secondary"
@@ -168,6 +186,7 @@ function ToDo() {
             </Button>
           </Col>
         </Row>
+
         <Row>
           <Col md={12}>
             <Filters onFilter={onFilter} />
@@ -223,4 +242,4 @@ function ToDo() {
   );
 }
 
-export default ToDo;
+export default memo(ToDo);

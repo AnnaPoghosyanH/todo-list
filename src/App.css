@@ -1,6 +1,5 @@
 .App {
   padding-bottom: 55px;
-
 }
 
 body {
@@ -9,8 +8,5 @@ body {
 
 @font-face {
   font-family: myFont;
-  src: url(./font/DancingScript-Bold.ttf);
+  src: url(./assets/font/DancingScriptBold.ttf);
 }
-
-
-

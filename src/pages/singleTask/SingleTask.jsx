@@ -54,9 +54,9 @@ function SingleTask() {
 
   return (
     <Container>
-      <Row className="justify-content-center">
+      <Row className="mt-5 pt-5 justify-content-center">
         <Col xs={12}>
-          <Card className="mt-4 mb-2">
+          <Card className="mt-5 mb-2">
             {task ? (
               <Card.Body>
                 {task.status === "active" ? (

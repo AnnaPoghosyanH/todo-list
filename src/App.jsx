@@ -4,47 +4,20 @@ import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import ToDo from "./pages/todo/ToDo";
-import About from "./pages/about/About";
-import Contact from "./pages/contact/Contact";
+import { useSelector } from "react-redux";
 import NavBar from "./components/navBar/NavBar";
-import SingleTask from "./pages/singleTask/SingleTask";
-import NotFound from "./pages/notFound/NotFound";
-
-const pages = [
-  {
-    path: "/",
-    element: <ToDo />,
-  },
-  {
-    path: "/todo",
-    element: <ToDo />,
-  },
-  {
-    path: "/about",
-    element: <About />,
-  },
-  {
-    path: "/contact",
-    element: <Contact />,
-  },
-  {
-    path: "/task/:taskId",
-    element: <SingleTask />,
-  },
-  {
-    path: "*",
-    element: <NotFound />,
-  },
-];
+import { routes } from "./routes";
+import Loader from "./components/loader/Loader";
 
 function App() {
+  const isLoading = useSelector((store) => store.loader.isLoading);
+
   return (
     <BrowserRouter>
       <div className="App">
         <NavBar />
         <Routes>
-          {pages.map((page) => (
+          {routes.map((page) => (
             <Route key={page.path} path={page.path} element={page.element} />
           ))}
         </Routes>
@@ -60,6 +33,7 @@ function App() {
           pauseOnHover
           theme="colored"
         />
+        {isLoading && <Loader />}
       </div>
     </BrowserRouter>
   );

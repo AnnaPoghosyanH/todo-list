@@ -1,8 +1,15 @@
 .active {
-  color: rgb(235, 88, 144);
+  color: rgb(189, 7, 7) !important;
 }
 
-.linkColor {
+.navLink {
   text-decoration: none;
   margin: 0 17px 0 17px;
+  color: rgb(4, 80, 94);
+  font-size: 17px;
+}
+
+.toDoLink {
+  margin-left: 30px;
+  font-size: 22px;
 }

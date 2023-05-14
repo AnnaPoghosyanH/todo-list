@@ -2,5 +2,17 @@
   text-align: center;
   color: rgb(7, 116, 143);
   font-family: myFont;
-  margin: 40px 0 50px 0;
+  margin: 70px 0 50px 0;
+}
+
+.buttonCol {
+  text-align: center;
+  color: rgb(61, 103, 216);
+  margin-bottom: 7px;
+}
+
+.h3 {
+  outline: 1px solid rgba(255, 255, 255);
+  border-radius: 7px;
+  width: 250px;
 }
