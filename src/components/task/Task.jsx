@@ -1,20 +1,16 @@
 import { memo } from "react";
 import PropTypes from "prop-types";
-import { formatDate } from "../../utils/helpers";
 import { Col, Card, Form, Button } from "react-bootstrap";
-import {
-  PencilSquare,
-  Trash,
-  CheckLg,
-  ClockHistory,
-} from "react-bootstrap-icons";
+import { PencilSquare, Trash, CheckLg, Flag } from "react-bootstrap-icons";
+import { Link } from "react-router-dom";
+import { formatDate } from "../../utils/helpers";
 import styles from "./task.module.css";
 
 function Task(props) {
   const task = props.dataTask;
 
   return (
-    <Col sm={12} xl={6} className="task">
+    <Col sm={12} xl={6}>
       <Card className="mt-2 mb-2">
         <Card.Body>
           <div className={styles.taskStatusCheckbox}>
@@ -24,13 +20,55 @@ function Task(props) {
               onChange={() => props.selectTask(task._id)}
               checked={props.checked}
             />
-            <h5 className={`${styles.taskStatus} `}>Status : {task.status} </h5>
-          </div>
+            {task.status === "active" ? (
+              <div className={styles.taskStatus}>
+                <h5 className={`${styles.taskStatusTextActive} `}>
+                  Status : {task.status}{" "}
+                </h5>
 
+                <Button
+                  title="Mark as done"
+                  variant="outline-danger"
+                  size="sm"
+                  className=" rounded-circle"
+                  onClick={() =>
+                    props.onStatusChange({ status: "done", _id: task._id })
+                  }
+                >
+                  <Flag />
+                </Button>
+              </div>
+            ) : (
+              <div className={styles.taskStatus}>
+                <h5 className={`${styles.taskStatusTextDone} `}>
+                  Status : {task.status}{" "}
+                </h5>
+                <Button
+                  title="Mark as  active"
+                  variant="outline-success"
+                  size="sm"
+                  className="rounded-circle"
+                  onClick={() =>
+                    props.onStatusChange({ status: "active", _id: task._id })
+                  }
+                >
+                  <CheckLg />
+                </Button>
+              </div>
+            )}
+          </div>
           <div className={styles.textBorder}>
             <Card.Title className={styles.taskTitle}>{task.title}</Card.Title>
             <Card.Text className={styles.taskEllipsis}>
-              {task.description}{" "}
+              {task.description}
+            </Card.Text>
+            <Card.Text className={styles.taskEllipsis}>
+              <Link to={`/task/${task._id}`}>
+                <span size="sm" className="float-end">
+                  {" "}
+                  Show more
+                </span>
+              </Link>
             </Card.Text>
           </div>
 
@@ -61,32 +99,6 @@ function Task(props) {
           >
             <PencilSquare />
           </Button>
-
-          {task.status === "active" ? (
-            <Button
-              title="Mark as done"
-              variant="outline-success"
-              size="sm"
-              className="me-1 float-end"
-              onClick={() =>
-                props.onStatusChange({ status: "done", _id: task._id })
-              }
-            >
-              <CheckLg />
-            </Button>
-          ) : (
-            <Button
-              title="Mark as active"
-              variant="outline-info"
-              size="sm"
-              className="me-1 float-end "
-              onClick={() =>
-                props.onStatusChange({ status: "active", _id: task._id })
-              }
-            >
-              <ClockHistory />
-            </Button>
-          )}
         </Card.Body>
       </Card>
     </Col>

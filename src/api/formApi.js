@@ -1,6 +1,6 @@
-const taskApiUrl = process.env.REACT_APP_API_URL + "/task";
+const formApiUrl = process.env.REACT_APP_API_URL + "/form";
 
-class TaskApi {
+class FormApi {
   #request(method, data = {}) {
     const { body, params, filters } = data;
     const req = {
@@ -12,7 +12,7 @@ class TaskApi {
     if (body) {
       req.body = JSON.stringify(body);
     }
-    let url = taskApiUrl;
+    let url = formApiUrl;
     if (params) {
       url = `${url}/${params}`;
     }
@@ -37,25 +37,9 @@ class TaskApi {
         return data;
       });
   }
-
-  getAll(filters) {
-    return this.#request("GET", { filters: filters });
-  }
-  getSingle(id) {
-    return this.#request("GET", { params: id });
-  }
-  add(task) {
-    return this.#request("POST", { body: task });
-  }
-  update(editedTask) {
-    return this.#request("PUT", { body: editedTask, params: editedTask._id });
-  }
-  delete(id) {
-    return this.#request("DELETE", { params: id });
-  }
-  deleteMany(ids) {
-    return this.#request("PATCH", { body: { tasks: ids } });
+  sendForm(form) {
+    return this.#request("POST", { body: form });
   }
 }
 
-export default TaskApi;
+export default FormApi;
