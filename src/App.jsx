@@ -21,6 +21,7 @@ function App() {
             <Route key={page.path} path={page.path} element={page.element} />
           ))}
         </Routes>
+        {isLoading && <Loader />}
         <ToastContainer
           position="bottom-left"
           autoClose={3000}
@@ -33,7 +34,6 @@ function App() {
           pauseOnHover
           theme="colored"
         />
-        {isLoading && <Loader />}
       </div>
     </BrowserRouter>
   );

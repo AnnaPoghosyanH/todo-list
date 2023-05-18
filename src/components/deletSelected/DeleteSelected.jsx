@@ -14,7 +14,7 @@ function DeleteSelected({ disabled, tasksCount, onSubmit }) {
   return (
     <>
       <Button
-        className={styles.deleteSelectedButton}
+        className={`${styles.deleteSelectedButton} rounded-pill`}
         variant="outline-danger"
         onClick={toggleConfirmDialog}
         disabled={disabled}

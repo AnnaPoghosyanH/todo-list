@@ -3,10 +3,12 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Container, Row, Col, Card, Button } from "react-bootstrap";
 import { PencilSquare, Trash, CheckLg, Flag } from "react-bootstrap-icons";
 import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
 import TaskApi from "../../api/taskApi";
 import TaskModal from "../../components/taskModal/TaskModal";
 import { formatDate } from "../../utils/helpers";
 import styles from "./singleTask.module.css";
+import { setLoader } from "../../redux/reducers/loaderSlice";
 
 const taskApi = new TaskApi();
 
@@ -15,8 +17,10 @@ function SingleTask() {
   const [task, setTask] = useState(null);
   const [isEditTaskModalShow, setIsEditTaskModalShow] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
+    dispatch(setLoader(true));
     taskApi
       .getSingle(taskId)
       .then((task) => {
@@ -24,8 +28,11 @@ function SingleTask() {
       })
       .catch((err) => {
         toast.error(err.message);
+      })
+      .finally(() => {
+        dispatch(setLoader(false));
       });
-  }, [taskId]);
+  }, [taskId, dispatch]);
 
   const onEditTask = (editedTask) => {
     taskApi

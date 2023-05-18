@@ -1,8 +1,10 @@
 import { Button } from "react-bootstrap";
 import { ExclamationCircleFill } from "react-bootstrap-icons";
 import { useEffect, useRef, useState } from "react";
-import FormApi from "../../api/formApi";
+import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
+import FormApi from "../../api/formApi";
+import { setLoader } from "../../redux/reducers/loaderSlice";
 import styles from "./contact.module.css";
 
 const emailPattern = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
@@ -13,6 +15,8 @@ function Contact() {
   const [nameErrorMessage, setNameErrorMessage] = useState(null);
   const [emailErrorMessage, setEmailErrorMessage] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     inputRefs.current[0].focus();
@@ -57,6 +61,7 @@ function Contact() {
       message,
     };
 
+    dispatch(setLoader(true));
     formApi
       .sendForm(form)
       .then(() => {
@@ -67,6 +72,9 @@ function Contact() {
       })
       .catch((err) => {
         toast.error(err.message);
+      })
+      .finally(() => {
+        dispatch(setLoader(false));
       });
   };
 

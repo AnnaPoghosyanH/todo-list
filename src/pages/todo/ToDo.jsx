@@ -1,4 +1,4 @@
-import { useState, useEffect, memo } from "react";
+import { useState, useEffect, memo, useCallback } from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { useSelector, useDispatch } from "react-redux";
@@ -24,28 +24,31 @@ function ToDo() {
   const tasksCount = useSelector((store) => store.tasksCount.count);
   const dispatch = useDispatch();
 
-  const getTasks = (filters) => {
-    dispatch(setLoader(true));
-    taskApi
-      .getAll(filters)
-      .then((tasks) => {
-        setTasks(tasks);
-      })
-      .catch((err) => {
-        toast.error(err.message);
-      })
-      .finally(() => {
-        dispatch(setLoader(false));
-      });
-  };
+  const getTasks = useCallback(
+    (filters) => {
+      dispatch(setLoader(true));
+      taskApi
+        .getAll(filters)
+        .then((tasks) => {
+          setTasks(tasks);
+        })
+        .catch((err) => {
+          toast.error(err.message);
+        })
+        .finally(() => {
+          dispatch(setLoader(false));
+        });
+    },
+    [dispatch]
+  );
 
   useEffect(() => {
     getTasks();
-  }, []);
+  }, [getTasks]);
 
   useEffect(() => {
     dispatch(setTasksCount(tasks.length));
-  }, [tasks.length]);
+  }, [tasks.length, dispatch]);
 
   const onAddNewTask = (newTask) => {
     taskApi
@@ -145,100 +148,96 @@ function ToDo() {
   };
 
   return (
-    <div>
-      <Container>
-        <Row>
-          <Col>
-            <h1 className={styles.h1}>My To Do List</h1>
-          </Col>
-        </Row>
-        <Row className="justify-content-md-center mb-3 "></Row>
-        <Row>
-          <Col sm="6" lg="3" className={styles.buttonCol}>
-            <h3 className={styles.h3}>Number of tasks: {tasksCount}</h3>
-          </Col>
-          <Col sm="6" lg="3" className={styles.buttonCol}>
-            <Button
-              className="rounded-pill"
-              variant="primary"
-              id="button-addon1"
-              onClick={() => setIsAddTaskModalShow(true)}
-            >
-              Add new task
-            </Button>
-          </Col>
-          <Col sm="6" lg="3" className={styles.buttonCol}>
-            <Button
-              className="rounded-pill"
-              variant="warning"
-              onClick={selectAllTasks}
-            >
-              Select all
-            </Button>
-          </Col>
-          <Col sm="6" lg="3" className={styles.buttonCol}>
-            <Button
-              className="rounded-pill"
-              variant="secondary"
-              onClick={resetSelectedTasks}
-            >
-              Reset selected
-            </Button>
-          </Col>
-        </Row>
+    <Container>
+      <Row>
+        <Col>
+          <h1 className={styles.h1}>My To Do List</h1>
+        </Col>
+      </Row>
+      <Row className=" mb-3">
+        <Col sm="12" lg="6" className={styles.buttonCol}>
+          <span className={styles.h3}>Number of tasks: {tasksCount}</span>
+          <Button
+            className="rounded-pill ms-5"
+            variant="primary"
+            id="button-addon1"
+            onClick={() => setIsAddTaskModalShow(true)}
+          >
+            Add new task
+          </Button>
+        </Col>
+        <Col sm="12" lg="6" className={styles.buttonCol}>
+          <Button
+            className="rounded-pill"
+            variant="warning"
+            onClick={selectAllTasks}
+          >
+            <span className={styles.selectAllButton}>Select all</span>
+          </Button>
+          <Button
+            className="rounded-pill ms-1"
+            variant="secondary"
+            onClick={resetSelectedTasks}
+          >
+            Reset selected
+          </Button>
+        </Col>
+      </Row>
 
-        <Row>
-          <Col md={12}>
-            <Filters onFilter={onFilter} />
-          </Col>
-        </Row>
+      <Row>
+        <Col md={12}>
+          <Filters onFilter={onFilter} />
+        </Col>
+      </Row>
 
-        <Row className="justify-content-center">
-          {tasks.map((task) => {
-            return (
-              <Task
-                key={task._id}
-                dataTask={task}
-                removeTask={setTaskToDelete}
-                selectTask={selectTaskById}
-                editTask={setEditableTask}
-                checked={selectedTasks.has(task._id)}
-                onStatusChange={onEditTask}
-              />
-            );
-          })}
-        </Row>
-        <DeleteSelected
-          disabled={!selectedTasks.size}
-          tasksCount={selectedTasks.size}
-          onSubmit={deleteSelectedTasks}
+      <Row className="justify-content-center">
+        {tasks.map((task) => {
+          return (
+            <Task
+              key={task._id}
+              dataTask={task}
+              removeTask={setTaskToDelete}
+              selectTask={selectTaskById}
+              editTask={setEditableTask}
+              checked={selectedTasks.has(task._id)}
+              onStatusChange={onEditTask}
+            />
+          );
+        })}
+      </Row>
+
+      <DeleteSelected
+        disabled={!selectedTasks.size}
+        tasksCount={selectedTasks.size}
+        onSubmit={deleteSelectedTasks}
+      />
+
+      {taskToDelete && (
+        <ConfirmDialog
+          tasksCount={1}
+          onCancel={() => setTaskToDelete(null)}
+          onSubmit={() => {
+            removeTaskById(taskToDelete);
+            setTaskToDelete(null);
+          }}
         />
-        {taskToDelete && (
-          <ConfirmDialog
-            tasksCount={1}
-            onCancel={() => setTaskToDelete(null)}
-            onSubmit={() => {
-              removeTaskById(taskToDelete);
-              setTaskToDelete(null);
-            }}
-          />
-        )}
-        {isAddTaskModalShow && (
-          <TaskModal
-            onCancel={() => setIsAddTaskModalShow(false)}
-            onSave={onAddNewTask}
-          />
-        )}
+      )}
 
-        {editableTask && (
-          <TaskModal
-            onCancel={() => setEditableTask(null)}
-            onSave={onEditTask}
-            data={editableTask}
-          />
-        )}
-      </Container>
-    </div>
+      {isAddTaskModalShow && (
+        <TaskModal
+          onCancel={() => setIsAddTaskModalShow(false)}
+          onSave={onAddNewTask}
+        />
+      )}
+
+      {editableTask && (
+        <TaskModal
+          onCancel={() => setEditableTask(null)}
+          onSave={onEditTask}
+          data={editableTask}
+        />
+      )}
+    </Container>
   );
 }
 
